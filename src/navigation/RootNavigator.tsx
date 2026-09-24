@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // Signed out -> the auth stack. Signed in -> a drawer (chat + history) with
-// the preview and account screens pushed on top.
+// projects, support, preview and account screens pushed on top.
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -17,6 +17,12 @@ import { LoginScreen } from '../screens/auth/LoginScreen';
 import { ResetPasswordScreen } from '../screens/auth/ResetPasswordScreen';
 import { ChatScreen } from '../screens/chat/ChatScreen';
 import { FilePreviewScreen } from '../screens/files/FilePreviewScreen';
+import { ProjectDetailScreen } from '../screens/projects/ProjectDetailScreen';
+import { ProjectFormScreen } from '../screens/projects/ProjectFormScreen';
+import { ProjectsScreen } from '../screens/projects/ProjectsScreen';
+import { NewTicketScreen } from '../screens/support/NewTicketScreen';
+import { SupportScreen } from '../screens/support/SupportScreen';
+import { TicketScreen } from '../screens/support/TicketScreen';
 import { useAuthStore } from '../stores/authStore';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
@@ -79,6 +85,16 @@ export function RootNavigator() {
           <AppStack.Screen name="FilePreview" component={FilePreviewScreen} options={{ title: '' }} />
           <AppStack.Screen name="Account" component={AccountScreen} options={{ title: 'Account' }} />
           <AppStack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Change password' }} />
+          <AppStack.Screen name="Projects" component={ProjectsScreen} options={{ title: 'Projects' }} />
+          <AppStack.Screen name="ProjectDetail" component={ProjectDetailScreen} options={{ title: '' }} />
+          <AppStack.Screen
+            name="ProjectForm"
+            component={ProjectFormScreen}
+            options={({ route }) => ({ title: route.params?.projectId ? 'Edit project' : 'New project', presentation: 'modal' })}
+          />
+          <AppStack.Screen name="Support" component={SupportScreen} options={{ title: 'Help & support' }} />
+          <AppStack.Screen name="NewTicket" component={NewTicketScreen} options={{ title: 'New ticket', presentation: 'modal' }} />
+          <AppStack.Screen name="Ticket" component={TicketScreen} options={{ title: '' }} />
         </AppStack.Navigator>
       ) : (
         <AuthStack.Navigator screenOptions={{ headerShown: false }}>

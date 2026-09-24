@@ -22,7 +22,7 @@ import { Composer } from '../../components/chat/Composer';
 import { EmptyState } from '../../components/chat/EmptyState';
 import { MessageItem, type OpenFile } from '../../components/chat/MessageItem';
 import { TypingIndicator } from '../../components/chat/TypingIndicator';
-import { MenuIcon, PlusIcon } from '../../components/Icons';
+import { CloseIcon, MenuIcon, PlusIcon, ProjectIcon } from '../../components/Icons';
 import { Banner } from '../../components/ui/Banner';
 import type { AppStackParamList, DrawerParamList } from '../../navigation/types';
 import { useAuthStore } from '../../stores/authStore';
@@ -43,6 +43,7 @@ export function ChatScreen({ navigation }: Props) {
   const dismissBlocked = useAuthStore((s) => s.dismissBlocked);
 
   const title = useChatStore((s) => s.title);
+  const project = useChatStore((s) => s.project);
   const messages = useChatStore((s) => s.messages);
   const loadingMessages = useChatStore((s) => s.loadingMessages);
   const sending = useChatStore((s) => s.sending);
@@ -92,6 +93,30 @@ export function ChatScreen({ navigation }: Props) {
           <PlusIcon size={24} color={colors.ink} />
         </Pressable>
       </View>
+
+      {/* Which project this chat belongs to — the only sign that the turn
+          carries the project's instructions, knowledge and memory. */}
+      {project ? (
+        <View style={styles.projectRow}>
+          <View style={styles.projectChip}>
+            <ProjectIcon size={15} color={colors.brandBlue600} />
+            <Text
+              style={styles.projectName}
+              numberOfLines={1}
+              onPress={() => navigation.navigate('ProjectDetail', { projectId: project.id, name: project.name })}
+            >
+              {project.name}
+            </Text>
+            <Pressable
+              hitSlop={10}
+              onPress={() => useChatStore.getState().newChat()}
+              accessibilityLabel="Leave the project and start a plain chat"
+            >
+              <CloseIcon size={14} color={colors.inkMuted} />
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
 
       {blocked ? (
         <View style={styles.banner}>
@@ -155,6 +180,20 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   banner: { paddingHorizontal: 12, paddingTop: 8 },
+  projectRow: { alignItems: 'center', paddingTop: 8 },
+  projectChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: '80%',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: colors.brandBone,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  projectName: { flexShrink: 1, fontFamily: fonts.semibold, fontSize: 13, color: colors.inkStrong },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   thread: { paddingHorizontal: 16, paddingVertical: 12 },
   composer: { paddingHorizontal: 10, paddingTop: 6, paddingBottom: 8 },

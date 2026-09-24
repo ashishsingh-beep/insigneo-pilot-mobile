@@ -18,6 +18,10 @@ import type {
 } from '../types/api';
 import { useSettingsStore } from './settingsStore';
 
+// The project the open chat belongs to. Its instructions, knowledge and memory
+// are added to every turn by the server.
+export type ChatProject = { id: string; name: string };
+
 export type LocalAttachment = { name: string; uri: string; isImage: boolean };
 
 export type PendingAttachment = LocalAttachment & {
@@ -50,6 +54,7 @@ export type ChatMessage = Message & {
 
 type ChatState = {
   conversationId: string | null;
+  project: ChatProject | null;
   title: string | null;
   messages: ChatMessage[];
   loadingMessages: boolean;
@@ -62,8 +67,9 @@ type ChatState = {
   // finishes and saves the reply, so the conversation is reloaded on return.
   needsResync: boolean;
 
-  newChat: () => void;
-  openConversation: (id: string, opts?: { force?: boolean }) => Promise<void>;
+  // Pass a project to start the new chat inside it.
+  newChat: (project?: ChatProject | null) => void;
+  openConversation: (id: string, opts?: { force?: boolean; project?: ChatProject | null }) => Promise<void>;
   send: (text: string) => Promise<void>;
   stop: () => void;
   addAttachments: (items: PendingAttachment[]) => void;
@@ -91,6 +97,7 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 const initialState = {
   conversationId: null,
+  project: null,
   title: null,
   messages: [],
   loadingMessages: false,
@@ -110,9 +117,13 @@ function withGeneratedFiles(messages: Message[]): Promise<ChatMessage[]> {
   );
 }
 
-function titleFromCache(id: string): string | null {
+function fromCache(id: string): Conversation | null {
   const list = queryClient.getQueryData<Conversation[]>(queryKeys.conversations);
-  return list?.find((c) => c.id === id)?.title ?? null;
+  return list?.find((c) => c.id === id) ?? null;
+}
+
+function projectOf(c: { projectId: string | null; projectName: string | null } | null): ChatProject | null {
+  return c?.projectId ? { id: c.projectId, name: c.projectName || 'Project' } : null;
 }
 
 export const useChatStore = create<ChatState>((set, get) => {
@@ -133,27 +144,30 @@ export const useChatStore = create<ChatState>((set, get) => {
   return {
     ...initialState,
 
-    newChat: () => {
+    newChat: (project = null) => {
       leaveCurrentView();
-      set({ ...initialState, pending: get().pending });
+      set({ ...initialState, pending: get().pending, project });
     },
 
     openConversation: async (id, opts = {}) => {
       if (id === get().conversationId && !opts.force && !get().needsResync) return;
       leaveCurrentView();
       const token = viewToken;
+      const cached = fromCache(id);
       set({
         ...initialState,
         pending: get().pending,
         conversationId: id,
-        title: titleFromCache(id),
+        title: cached?.title ?? null,
+        // The conversation row already says which project it is in.
+        project: opts.project ?? projectOf(cached),
         loadingMessages: true,
       });
       try {
         const conv = await getConversation(id);
         const messages = await withGeneratedFiles(conv.messages);
         if (token !== viewToken) return;
-        set({ messages, title: conv.title, loadingMessages: false });
+        set({ messages, title: conv.title, project: get().project ?? projectOf(conv), loadingMessages: false });
       } catch {
         if (token !== viewToken) return;
         set({ messages: [], loadingMessages: false });
@@ -162,7 +176,7 @@ export const useChatStore = create<ChatState>((set, get) => {
 
     send: async (text) => {
       const content = text.trim();
-      const { pending, sending, conversationId } = get();
+      const { pending, sending, conversationId, project } = get();
       // An attachment on its own is a valid turn ("what does this chart show?").
       if ((!content && pending.length === 0) || sending) return;
 
@@ -300,8 +314,8 @@ export const useChatStore = create<ChatState>((set, get) => {
                   id: evt.conversationId,
                   title,
                   updatedAt: new Date().toISOString(),
-                  projectId: null,
-                  projectName: null,
+                  projectId: project?.id ?? null,
+                  projectName: project?.name ?? null,
                 },
                 ...(list || []).filter((c) => c.id !== evt.conversationId),
               ]);
@@ -360,6 +374,8 @@ export const useChatStore = create<ChatState>((set, get) => {
             fileIds: uploaded.map((f) => f.id),
             enableWebSearch,
             model: selectedModel,
+            // Only honoured on the first turn; the server files the chat under it.
+            projectId: conversationId ? null : project?.id ?? null,
           },
           onEvent,
         );
@@ -383,8 +399,13 @@ export const useChatStore = create<ChatState>((set, get) => {
           }
           set({ sending: false, streamStatus: null });
         }
-        // Refresh updated_at ordering (and the server-side title) in the sidebar.
+        // Refresh updated_at ordering (and the server-side title) in the sidebar,
+        // and the project screen that lists this chat.
         queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
+        if (project) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
+          queryClient.invalidateQueries({ queryKey: queryKeys.projects });
+        }
       }
     },
 

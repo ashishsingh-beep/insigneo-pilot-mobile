@@ -8,13 +8,14 @@ import { ActivityIndicator, Alert, Pressable, RefreshControl, SectionList, Style
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useConversations, useDeleteConversation, useRenameConversation } from '../../hooks/useConversations';
+import { useSupportUnread } from '../../hooks/useSupport';
 import { useAuthStore } from '../../stores/authStore';
 import { isStreamingInto, useChatStore } from '../../stores/chatStore';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/fonts';
 import type { Conversation } from '../../types/api';
 import { groupConversationsByDate } from '../../utils/chatHistory';
-import { ChevronRightIcon, PencilIcon, PlusIcon, TrashIcon, UserIcon } from '../Icons';
+import { ChevronRightIcon, HelpIcon, PencilIcon, PlusIcon, ProjectIcon, TrashIcon, UserIcon } from '../Icons';
 import { Logo } from '../Logo';
 import { Sheet } from '../ui/Sheet';
 import { RenameDialog } from './RenameDialog';
@@ -26,6 +27,7 @@ export function DrawerContent({ navigation }: DrawerContentComponentProps) {
   const { data: conversations, isLoading, isRefetching, refetch, error } = useConversations();
   const rename = useRenameConversation();
   const remove = useDeleteConversation();
+  const unread = useSupportUnread().data?.unread_total || 0;
 
   const [menuFor, setMenuFor] = useState<Conversation | null>(null);
   const [renaming, setRenaming] = useState<Conversation | null>(null);
@@ -35,6 +37,11 @@ export function DrawerContent({ navigation }: DrawerContentComponentProps) {
   function open(id: string) {
     useChatStore.getState().openConversation(id);
     navigation.closeDrawer();
+  }
+
+  function openScreen(name: 'Projects' | 'Support') {
+    navigation.closeDrawer();
+    navigation.getParent()?.navigate(name);
   }
 
   function newChat() {
@@ -78,6 +85,20 @@ export function DrawerContent({ navigation }: DrawerContentComponentProps) {
         <Text style={styles.newChatText}>New Chat</Text>
       </Pressable>
 
+      <Pressable style={({ pressed }) => [styles.navRow, pressed && styles.pressed]} onPress={() => openScreen('Projects')}>
+        <ProjectIcon size={20} color={colors.ink} />
+        <Text style={styles.navText}>Projects</Text>
+      </Pressable>
+      <Pressable style={({ pressed }) => [styles.navRow, pressed && styles.pressed]} onPress={() => openScreen('Support')}>
+        <HelpIcon size={20} color={colors.ink} />
+        <Text style={styles.navText}>Help & support</Text>
+        {unread > 0 ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+          </View>
+        ) : null}
+      </Pressable>
+
       <Text style={styles.recentLabel}>RECENT</Text>
 
       {isLoading ? (
@@ -102,9 +123,16 @@ export function DrawerContent({ navigation }: DrawerContentComponentProps) {
               delayLongPress={350}
               style={({ pressed }) => [styles.row, item.id === activeId && styles.rowActive, pressed && styles.pressed]}
             >
-              <Text style={styles.rowText} numberOfLines={1}>
-                {item.title}
-              </Text>
+              <View style={styles.rowBody}>
+                <Text style={styles.rowText} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                {item.projectName ? (
+                  <Text style={styles.rowProject} numberOfLines={1}>
+                    {item.projectName}
+                  </Text>
+                ) : null}
+              </View>
               <Pressable hitSlop={10} onPress={() => setMenuFor(item)} accessibilityLabel={`Actions for ${item.title}`}>
                 <Text style={styles.more}>⋯</Text>
               </Pressable>
@@ -206,7 +234,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: colors.inkFaint,
     paddingHorizontal: 20,
-    marginTop: 22,
+    marginTop: 14,
     marginBottom: 4,
   },
   loading: { marginTop: 20 },
@@ -229,7 +257,30 @@ const styles = StyleSheet.create({
   },
   rowActive: { backgroundColor: colors.activeBg },
   pressed: { backgroundColor: colors.hoverBg },
-  rowText: { flex: 1, fontFamily: fonts.regular, fontSize: 15, color: colors.ink },
+  rowBody: { flex: 1 },
+  rowText: { fontFamily: fonts.regular, fontSize: 15, color: colors.ink },
+  rowProject: { fontFamily: fonts.medium, fontSize: 12, color: colors.brandBlue600, marginTop: 1 },
+  navRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginHorizontal: 12,
+    marginTop: 4,
+    paddingVertical: 11,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  navText: { flex: 1, fontFamily: fonts.medium, fontSize: 15, color: colors.ink },
+  badge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    backgroundColor: colors.brandBlue600,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: { fontFamily: fonts.bold, fontSize: 11, color: colors.white },
   more: { fontFamily: fonts.bold, fontSize: 18, color: colors.inkMuted, paddingLeft: 10 },
   empty: { fontFamily: fonts.regular, fontSize: 14, color: colors.inkMuted, paddingHorizontal: 20, paddingTop: 8 },
   account: {

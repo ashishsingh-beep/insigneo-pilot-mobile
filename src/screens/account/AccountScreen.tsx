@@ -1,9 +1,10 @@
-// Profile, change password and log out. Microsoft 365 connect and support
-// tickets join this screen in the next phase.
+// Profile, Microsoft 365, help & support, change password and log out.
 import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ChevronRightIcon, LockIcon, LogoutIcon, UserIcon } from '../../components/Icons';
+import { MicrosoftSection } from '../../components/account/MicrosoftSection';
+import { ChevronRightIcon, HelpIcon, LockIcon, LogoutIcon, UserIcon } from '../../components/Icons';
+import { useSupportUnread } from '../../hooks/useSupport';
 import type { AppStackParamList } from '../../navigation/types';
 import { useAuthStore } from '../../stores/authStore';
 import { colors } from '../../theme/colors';
@@ -15,6 +16,7 @@ export function AccountScreen({ navigation }: Props) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [loggingOut, setLoggingOut] = useState(false);
+  const unread = useSupportUnread().data?.unread_total || 0;
 
   function confirmLogout() {
     Alert.alert('Log out?', 'You will need to sign in again to use InsigneoAI.', [
@@ -41,6 +43,21 @@ export function AccountScreen({ navigation }: Props) {
         <View style={styles.role}>
           <Text style={styles.roleText}>{user?.role || 'Member'}</Text>
         </View>
+      </View>
+
+      <MicrosoftSection />
+
+      <View style={styles.group}>
+        <Pressable style={({ pressed }) => [styles.row, pressed && styles.pressed]} onPress={() => navigation.navigate('Support')}>
+          <HelpIcon color={colors.ink} />
+          <Text style={styles.rowText}>Help & support</Text>
+          {unread > 0 ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+            </View>
+          ) : null}
+          <ChevronRightIcon size={18} color={colors.inkMuted} />
+        </Pressable>
       </View>
 
       <View style={styles.group}>
@@ -102,4 +119,14 @@ const styles = StyleSheet.create({
   pressed: { backgroundColor: colors.hoverBg },
   rowText: { flex: 1, fontFamily: fonts.medium, fontSize: 16, color: colors.ink },
   danger: { color: colors.danger },
+  badge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    backgroundColor: colors.brandBlue600,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: { fontFamily: fonts.bold, fontSize: 11, color: colors.white },
 });

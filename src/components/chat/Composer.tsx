@@ -5,15 +5,12 @@
 
 import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { launchCamera, launchImageLibrary, type Asset, type PhotoQuality } from 'react-native-image-picker';
-import { errorCodes, isErrorWithCode, pick, types } from '@react-native-documents/picker';
-import { MAX_DOCUMENT_BYTES, MAX_IMAGE_BYTES } from '../../config';
 import { useModels } from '../../hooks/useModels';
-import { useChatStore, type PendingAttachment } from '../../stores/chatStore';
+import { useChatStore } from '../../stores/chatStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/fonts';
-import { formatBytes, isAttachable, isImageUpload, mimeTypeOf } from '../../utils/files';
+import { pickDocuments, pickFromCamera, pickFromPhotos, type PickResult } from '../../utils/pickers';
 import {
   ArrowUpIcon,
   CameraIcon,
@@ -33,52 +30,6 @@ type Props = { value: string; onChangeText: (text: string) => void };
 
 let seq = 0;
 
-type Candidate = { uri: string; name: string; type: string | null; size: number | null };
-
-// Validates picked files the same way the web app does: supported type, and
-// under the backend's size limits.
-function toAttachments(candidates: Candidate[]): { accepted: PendingAttachment[]; error: string | null } {
-  const accepted: PendingAttachment[] = [];
-  let error: string | null = null;
-  for (const c of candidates) {
-    if (!isAttachable(c.name, c.type)) {
-      error = `${c.name} can't be uploaded. Supported formats are PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, and images (PNG, JPG, GIF, WEBP).`;
-      continue;
-    }
-    const image = isImageUpload(c.name, c.type);
-    const limit = image ? MAX_IMAGE_BYTES : MAX_DOCUMENT_BYTES;
-    if (c.size != null && c.size > limit) {
-      error = `${c.name} is too large — ${image ? 'images' : 'files'} must be under ${formatBytes(limit)}.`;
-      continue;
-    }
-    seq += 1;
-    accepted.push({
-      key: `att_${seq}`,
-      uri: c.uri,
-      name: c.name,
-      type: c.type || mimeTypeOf(c.name),
-      size: c.size,
-      isImage: image,
-    });
-  }
-  return { accepted, error };
-}
-
-function fromImageAssets(assets: Asset[] | undefined): Candidate[] {
-  return (assets || [])
-    .filter((a) => a.uri)
-    .map((a, i) => ({
-      uri: a.uri!,
-      name: a.fileName || `photo_${Date.now()}_${i}.jpg`,
-      type: a.type || 'image/jpeg',
-      size: a.fileSize ?? null,
-    }));
-}
-
-// Phone photos are large; the backend downsizes to 1568px anyway, so a
-// smaller upload loses nothing and saves the user's data.
-const IMAGE_OPTIONS = { mediaType: 'photo' as const, maxWidth: 2048, maxHeight: 2048, quality: 0.8 as PhotoQuality };
-
 export function Composer({ value, onChangeText }: Props) {
   const sending = useChatStore((s) => s.sending);
   const pending = useChatStore((s) => s.pending);
@@ -95,41 +46,16 @@ export function Composer({ value, onChangeText }: Props) {
 
   const canSend = (value.trim().length > 0 || pending.length > 0) && !sending;
 
-  function accept(candidates: Candidate[]) {
-    const { accepted, error } = toAttachments(candidates);
+  async function attach(picker: () => Promise<PickResult>) {
+    const { files, error } = await picker();
     setAttachError(error);
-    if (accepted.length) addAttachments(accepted);
-  }
-
-  async function takePhoto() {
-    const res = await launchCamera({ ...IMAGE_OPTIONS, saveToPhotos: false });
-    if (res.errorCode) setAttachError(res.errorMessage || 'Could not open the camera.');
-    else accept(fromImageAssets(res.assets));
-  }
-
-  async function choosePhotos() {
-    const res = await launchImageLibrary({ ...IMAGE_OPTIONS, selectionLimit: 0 });
-    if (res.errorCode) setAttachError(res.errorMessage || 'Could not open your photos.');
-    else accept(fromImageAssets(res.assets));
-  }
-
-  async function chooseFiles() {
-    try {
-      const files = await pick({
-        allowMultiSelection: true,
-        type: [types.pdf, types.docx, types.xlsx, types.pptx, types.csv, types.plainText, types.images],
-      });
-      accept(
-        files.map((f) => ({
-          uri: f.uri,
-          name: f.name || 'file',
-          type: f.type,
-          size: f.size,
-        })),
+    if (files.length) {
+      addAttachments(
+        files.map((f) => {
+          seq += 1;
+          return { ...f, key: `att_${seq}` };
+        }),
       );
-    } catch (err) {
-      if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) return;
-      setAttachError('Could not open the file picker.');
     }
   }
 
@@ -220,14 +146,14 @@ export function Composer({ value, onChangeText }: Props) {
         title="Add to your message"
         onClose={() => setAttachOpen(false)}
         options={[
-          { key: 'camera', label: 'Camera', icon: <CameraIcon color={colors.ink} />, onPress: takePhoto },
-          { key: 'photos', label: 'Photos', icon: <ImageIcon color={colors.ink} />, onPress: choosePhotos },
+          { key: 'camera', label: 'Camera', icon: <CameraIcon color={colors.ink} />, onPress: () => attach(pickFromCamera) },
+          { key: 'photos', label: 'Photos', icon: <ImageIcon color={colors.ink} />, onPress: () => attach(pickFromPhotos) },
           {
             key: 'files',
             label: 'Files',
             description: 'PDF, Word, Excel, PowerPoint, CSV, TXT',
             icon: <DocumentIcon color={colors.ink} />,
-            onPress: chooseFiles,
+            onPress: () => attach(pickDocuments),
           },
         ]}
       />

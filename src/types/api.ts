@@ -99,3 +99,95 @@ export type ChatEvent =
   | { type: 'delta'; text: string }
   | { type: 'done'; message: Message }
   | { type: 'error'; message: string };
+
+// --- Projects (domains/projects/schemas.py) ---------------------------------
+
+export type ProjectConversation = { id: string; title: string; updated_at: string };
+
+export type ProjectMemory = {
+  id: string;
+  content: string;
+  kind: 'auto' | 'explicit';
+  created_at: string;
+};
+
+export type KnowledgeItem = {
+  id: string;
+  filename: string;
+  content_type: string;
+  size: number;
+  // A "file" becomes a citable document; an "image" is shown to the model
+  // but cannot be quoted from.
+  kind: 'file' | 'image';
+  status: 'ready' | 'processing' | 'failed';
+  error: string | null;
+  token_count: number;
+  created_at: string;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string | null;
+  instructions: string | null;
+  created_at: string;
+  updated_at: string;
+  conversation_count: number;
+  knowledge_count: number;
+  knowledge_bytes: number;
+  knowledge_tokens: number;
+  knowledge_token_limit: number;
+};
+
+export type ProjectDetail = Project & {
+  conversations: ProjectConversation[];
+  knowledge: KnowledgeItem[];
+  memories: ProjectMemory[];
+};
+
+// --- Microsoft 365 (domains/integrations/microsoft/schemas.py) -------------
+
+export type MicrosoftStatus =
+  | { enabled: false }
+  | {
+      enabled: true;
+      connected: boolean;
+      status: 'disconnected' | 'connected' | 'reconnect_required';
+      msUpn: string | null;
+      connectedAt: string | null;
+      lastError: string | null;
+    };
+
+// --- Support tickets (domains/support/schemas.py) ---------------------------
+
+export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type TicketPriority = 'low' | 'normal' | 'high' | 'urgent';
+
+export type TicketMessage = {
+  id: string;
+  ticket_id: string;
+  sender_name: string;
+  // "user" (the ticket owner), "admin" (support) or "system" (lifecycle notes)
+  sender_role: string;
+  body: string;
+  created_at: string | null;
+};
+
+export type Ticket = {
+  id: string;
+  reference: string | null;
+  subject: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  assigned_to_name: string | null;
+  created_at: string | null;
+  last_message_at: string | null;
+  message_count: number;
+  unread_count: number;
+  last_message: TicketMessage | null;
+};
+
+export type TicketDetail = Ticket & { messages: TicketMessage[] };
+
+export type UnreadSummary = { unread_total: number; tickets_with_unread: number; open_tickets: number };

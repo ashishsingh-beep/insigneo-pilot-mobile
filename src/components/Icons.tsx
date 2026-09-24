@@ -201,6 +201,64 @@ export const LogoutIcon = icon(() => (
   </>
 ));
 
+export const ProjectIcon = icon(() => (
+  <>
+    <Path d="M3 7.5a2 2 0 0 1 2-2h3.6a2 2 0 0 1 1.5.7l1.1 1.3H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+    <Path d="M3 11h18" />
+  </>
+));
+
+export const BookIcon = icon(() => (
+  <>
+    <Path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v15H5.5A1.5 1.5 0 0 0 4 19.5Z" />
+    <Path d="M4 19.5A1.5 1.5 0 0 1 5.5 18H19v3H5.5A1.5 1.5 0 0 1 4 19.5Z" />
+    <Path d="M8 7.5h7M8 11h5" />
+  </>
+));
+
+export const SparkIcon = icon(() => (
+  <>
+    <Path d="M12 3.5 13.6 9 19 10.6 13.6 12.2 12 17.7 10.4 12.2 5 10.6 10.4 9Z" />
+    <Path d="M18 16.5 18.7 18.8 21 19.5 18.7 20.2 18 22.5 17.3 20.2 15 19.5 17.3 18.8Z" />
+  </>
+));
+
+export const HelpIcon = icon(() => (
+  <>
+    <Circle cx="12" cy="12" r="9" />
+    <Path d="M9.5 9.5a2.5 2.5 0 0 1 4.6 1.3c0 1.7-2.6 2-2.6 3.7" />
+    <Path d="M12 17.5h.01" />
+  </>
+));
+
+export const TicketIcon = icon(() => (
+  <>
+    <Path d="M3 9.5V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2.5a2.5 2.5 0 0 0 0 5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2.5a2.5 2.5 0 0 0 0-5Z" />
+    <Path d="M13 5v3M13 11v2M13 16v3" />
+  </>
+));
+
+export const SendIcon = icon(() => (
+  <>
+    <Path d="M21 3 10.5 13.5" />
+    <Path d="M21 3 14.5 21l-4-7.5L3 9.5Z" />
+  </>
+));
+
+export const CheckCircleIcon = icon(() => (
+  <>
+    <Circle cx="12" cy="12" r="9" />
+    <Path d="m8.5 12.2 2.4 2.4 4.6-5" />
+  </>
+));
+
+export const LinkIcon = icon(() => (
+  <>
+    <Path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+    <Path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+  </>
+));
+
 export const FileTypeIcon = ({ filename, ...props }: IconProps & { filename: string }) => {
   const name = filename.toLowerCase();
   if (/\.(png|jpe?g|jfif|gif|webp)$/.test(name)) return <ImageIcon {...props} />;

@@ -13,6 +13,12 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   conversations: ['conversations'] as const,
   models: ['models'] as const,
+  projects: ['projects'] as const,
+  project: (id: string) => ['project', id] as const,
+  microsoft: ['microsoft'] as const,
+  tickets: ['tickets'] as const,
+  ticket: (id: string) => ['ticket', id] as const,
+  supportUnread: ['supportUnread'] as const,
 };
 
 // React Native has no window focus event — tell TanStack Query when the app

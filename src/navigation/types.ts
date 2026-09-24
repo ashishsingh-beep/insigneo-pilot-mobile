@@ -16,4 +16,11 @@ export type AppStackParamList = {
   FilePreview: { source: FileSource; id: string; filename: string; size?: number | null };
   Account: undefined;
   ChangePassword: undefined;
+  Projects: undefined;
+  ProjectDetail: { projectId: string; name?: string };
+  // No projectId = create.
+  ProjectForm: { projectId?: string } | undefined;
+  Support: undefined;
+  NewTicket: undefined;
+  Ticket: { ticketId: string; subject?: string };
 };
