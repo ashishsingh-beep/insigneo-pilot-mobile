@@ -1,0 +1,33 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/HankenGrotesk-Bold.ttf",
+      "sha1": "9d57aa526bb24be698d58f7199e34146d5904eb9"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Medium.ttf",
+      "sha1": "1ec2808d71589d4f20ea9c1ef318ba6136f8c2f8"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-Regular.ttf",
+      "sha1": "25ffb06e7d9ab063ad12119c3759f9deaee71e99"
+    },
+    {
+      "path": "assets/fonts/HankenGrotesk-SemiBold.ttf",
+      "sha1": "25087309972ac40d582224c2f1ce012c35dc9c69"
+    },
+    {
+      "path": "assets/fonts/Newsreader-Bold.ttf",
+      "sha1": "56c6628b353631aeae800220d730b46601a1902f"
+    },
+    {
+      "path": "assets/fonts/Newsreader-Medium.ttf",
+      "sha1": "13eb30330e0e649f9b759f7ea7f1e3954d24d351"
+    },
+    {
+      "path": "assets/fonts/Newsreader-SemiBold.ttf",
+      "sha1": "5f5959f00d4c6cd790b3506492208ca10390a4a0"
+    }
+  ]
+}
