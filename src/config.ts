@@ -6,7 +6,7 @@
 // PC. Update the IP below whenever the PC's address changes.
 // ---------------------------------------------------------------------------
 
-const DEV_API_BASE_URL = 'http://172.16.16.148:9000/api';
+const DEV_API_BASE_URL = 'http://172.16.16.235:9000/api';
 // const PROD_API_BASE_URL = 'https://insigneo.ai/api';
 
 // Local backend only for now. To switch release builds to production, restore:

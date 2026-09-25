@@ -1,6 +1,7 @@
 // Shared frame for the signed-out screens: logo, then a card with a heading.
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Logo } from '../../components/Logo';
 import { colors } from '../../theme/colors';
@@ -11,7 +12,7 @@ type Props = { title: string; subtitle: string; children: React.ReactNode };
 export function AuthLayout({ title, subtitle, children }: Props) {
   return (
     <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.brand}>
             <Logo height={56} />
@@ -22,7 +23,7 @@ export function AuthLayout({ title, subtitle, children }: Props) {
             {children}
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

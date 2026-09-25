@@ -7,15 +7,13 @@ import React, { useLayoutEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import { useHeaderHeight } from '@react-navigation/elements';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PRIORITY_LABELS } from '../../api/support';
@@ -62,7 +60,6 @@ export function TicketScreen({ navigation, route }: Props) {
   const reopen = useReopenTicket(ticketId);
   const [draft, setDraft] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
-  const headerHeight = useHeaderHeight();
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: ticket?.subject || route.params.subject || 'Ticket' });
@@ -103,11 +100,7 @@ export function TicketScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
-      >
+      <KeyboardAvoider>
         <View style={styles.head}>
           <View style={styles.headRow}>
             <StatusBadge status={ticket.status} />
@@ -175,7 +168,7 @@ export function TicketScreen({ navigation, route }: Props) {
             </View>
           </View>
         )}
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

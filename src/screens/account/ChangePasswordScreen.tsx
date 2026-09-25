@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { changePassword } from '../../api/auth';
 import { LockIcon } from '../../components/Icons';
@@ -39,7 +40,7 @@ export function ChangePasswordScreen({ navigation }: Props) {
   const icon = <LockIcon color={colors.inkMuted} />;
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoider>
       <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {done ? (
           <View>
@@ -65,7 +66,7 @@ export function ChangePasswordScreen({ navigation }: Props) {
           </View>
         )}
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }
 

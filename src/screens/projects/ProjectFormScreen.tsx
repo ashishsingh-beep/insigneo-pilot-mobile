@@ -1,6 +1,7 @@
 // Create a project, or edit an existing one's name and description.
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { queryClient, queryKeys } from '../../api/queryClient';
 import { Button } from '../../components/ui/Button';
@@ -45,7 +46,7 @@ export function ProjectFormScreen({ navigation, route }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoider>
       <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField
           label="Name"
@@ -69,7 +70,7 @@ export function ProjectFormScreen({ navigation, route }: Props) {
         {error ? <Text style={authStyles.error}>{error}</Text> : null}
         <Button title={projectId ? 'Save changes' : 'Create project'} onPress={handleSubmit} loading={saving} />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }
 

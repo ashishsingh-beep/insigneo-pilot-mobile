@@ -7,8 +7,6 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -17,6 +15,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { KNOWLEDGE_TOKEN_LIMIT_FALLBACK } from '../../api/projects';
 import {
@@ -184,7 +183,7 @@ export function ProjectDetailScreen({ navigation, route }: Props) {
   const meter = knowledgeMeter(project);
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoider>
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
@@ -370,7 +369,7 @@ export function ProjectDetailScreen({ navigation, route }: Props) {
           { key: 'camera', label: 'Camera', icon: <CameraIcon color={colors.ink} />, onPress: () => addFiles(pickFromCamera) },
         ]}
       />
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }
 

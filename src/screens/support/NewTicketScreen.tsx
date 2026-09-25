@@ -1,6 +1,7 @@
 // Raise a ticket: subject, description and priority.
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PRIORITIES, PRIORITY_LABELS } from '../../api/support';
 import { Button } from '../../components/ui/Button';
@@ -36,7 +37,7 @@ export function NewTicketScreen({ navigation }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoider>
       <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField
           label="Subject"
@@ -65,7 +66,7 @@ export function NewTicketScreen({ navigation }: Props) {
         {error ? <Text style={authStyles.error}>{error}</Text> : null}
         <Button title="Submit ticket" onPress={handleSubmit} loading={create.isPending} />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }
 

@@ -1,7 +1,7 @@
 // Rename a chat. Alert.prompt is iOS-only, so this is a small modal that
 // behaves the same on both platforms.
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/fonts';
 import { Button } from '../ui/Button';
@@ -28,7 +28,7 @@ export function RenameDialog({ visible, initialTitle, onCancel, onSave }: Props)
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.backdrop} behavior="padding">
         <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
         <View style={styles.card}>
           <Text style={styles.title}>Rename chat</Text>

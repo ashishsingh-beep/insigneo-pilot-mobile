@@ -7,13 +7,12 @@ import {
   ActivityIndicator,
   AppState,
   FlatList,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../components/ui/KeyboardAvoider';
 import type { DrawerScreenProps } from '@react-navigation/drawer';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -127,7 +126,7 @@ export function ChatScreen({ navigation }: Props) {
         </View>
       ) : null}
 
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         {!inThread ? (
           <EmptyState firstName={firstName} onSuggestion={setDraft} />
         ) : loadingMessages ? (
@@ -155,7 +154,7 @@ export function ChatScreen({ navigation }: Props) {
         <View style={styles.composer}>
           <Composer value={draft} onChangeText={setDraft} />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }
